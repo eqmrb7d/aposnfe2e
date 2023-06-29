@@ -1,0 +1,310 @@
+{
+	"info": {
+		"_postman_id": "0ef66af6-ffb1-443d-8c0b-3fe12248993c",
+		"name": "DMS_INCADEA_GSB_WOSS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Crete_Access_Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData;\r",
+							"try { jsonData = pm.response.json(); } catch(e) {}\r",
+							"\r",
+							"pm.test(\"Status code is 200 and IDK token is stored\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.environment.set(\"IdentityKitToken\", jsonData.access_token);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"id": "06ff7cde-39af-4ea8-a0b4-e1b1ff53c343"
+					}
+				}
+			],
+			"_postman_id": "fa2e515f-ba0e-4d44-a6c2-66e96c0e34b4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "{{grant_type_IDK}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id_IDK}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret_IDK}}",
+							"type": "text"
+						}
+					],
+					"options": {}
+				},
+				"url": "{{idk-token-url}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Incadea_SendOrderDetails_AssignWorkshopOrder",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var xmldata;\r",
+							"try \r",
+							"{\r",
+							"     xmldata = pm.response.body;\r",
+							"} catch(e) {}\r",
+							"\r",
+							"pm.test(\"Status code is 200 and mtls connection is established\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"id": "3e9e5e86-6dc4-4ae9-9c02-1b091bb577ca"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function makeID(length, type) {\r",
+							"   var result           = '';   \r",
+							"   if( type == \"VIN\"){\r",
+							"       var characters = 'ABCDEFGHIJKLMNOPRSTUVWXYZ123456789';\r",
+							"   }\r",
+							"   else if(type==\"orderNumberID\" || type==\"offerNumberID\" || type==\"customerNumberID\" || type==\"uniqueString\"){\r",
+							"       var characters = 'abcdefghijklmnopqrstuvwxyz123456789';\r",
+							"   }\r",
+							"   var charactersLength = characters.length;\r",
+							"   for ( var i = 0; i < length; i++ ) {\r",
+							"      result += characters.charAt(Math.floor(Math.random() * charactersLength));\r",
+							"   }\r",
+							"   return result;\r",
+							"}\r",
+							"\r",
+							"var moment = require ('moment');\r",
+							"pm.globals.set('currentDate', moment().format((\"YYYY-MM-DD\")));\r",
+							"pm.globals.set('currentDateAndTime', moment().format((\"YYYY-MM-DD\"))+\"T\"+moment().format((\"HH:mm:ss.SSS\"))+\"Z\");\r",
+							"\r",
+							"\r",
+							"var uuid = require('uuid');\r",
+							"pm.environment.set('workshopOrderUID', uuid.v4());\r",
+							"pm.environment.set(\"orderNumberID\", makeID(10, \"orderNumberID\"));\r",
+							"pm.environment.set(\"genVIN\", makeID(17, \"VIN\"));\r",
+							""
+						],
+						"type": "text/javascript",
+						"id": "dd0a669e-67e8-4eac-99ac-13743e4d0dda"
+					}
+				}
+			],
+			"_postman_id": "ff739914-c4f3-455f-8ad3-5549cf07bde6",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				},
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/xml",
+						"type": "text"
+					},
+					{
+						"key": "SOAPAction",
+						"value": "\"#POST\"",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{IdentityKitToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:v1=\"http://xmldefs.volkswagenag.com/Retail/WorkshopOrderStagingService/V1\" xmlns:v3=\"http://xmldefs.volkswagenag.com/DD/WorkshopOrder/V3\" xmlns:v11=\"http://xmldefs.volkswagenag.com/DD/WorkshopOrder/Ref/V1\" xmlns:v12=\"http://xmldefs.volkswagenag.com/DD/BusinessPartner/Ref/V1\" xmlns:v13=\"http://xmldefs.volkswagenag.com/DD/Vehicle/Ref/V1\" xmlns:v14=\"http://xmldefs.volkswagenag.com/DD/SparePart/Ref/V1\">\r\n   <soapenv:Header xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">\r\n        <wsa:Action xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">http://xmldefs.volkswagenag.com/Retail/WorkshopOrderStagingService/V1/WorkshopOrderStagingServicePortType/AssignWorkshopOrder</wsa:Action>\r\n        <wsa:MessageID xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">urn:uuid:4f34e395-3b52-4ce0-91f1-e532784084f5</wsa:MessageID>        \r\n    </soapenv:Header>\r\n   <soapenv:Body>\r\n      <v1:AssignWorkshopOrder>\r\n         <v3:WorkshopOrder>\r\n            <!--Optional:-->\r\n            <v3:WorkshopOrderIdentifier>\r\n               <!--Optional:-->\r\n               <v11:WorkshopOrderUID>{{workshopOrderUID}}</v11:WorkshopOrderUID>\r\n               <!--Optional:-->\r\n               <v11:Dealer>\r\n                  <v12:DealerRef>\r\n                     <v12:DealerIdentifier>\r\n                        <!--Optional:-->\r\n                        <v12:PartnerKey>\r\n                           <!--Optional:-->\r\n                           <v12:Country listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">DEU</v12:Country>\r\n                           <!--Optional:-->\r\n                           <v12:Brand listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">V</v12:Brand>\r\n                           <!--Optional:-->\r\n                           <v12:PartnerNumber>{{partnerNumber}}</v12:PartnerNumber>\r\n                        </v12:PartnerKey>\r\n                     </v12:DealerIdentifier>\r\n                  </v12:DealerRef>\r\n               </v11:Dealer>\r\n               <!--Optional:-->\r\n               <v11:OrderNumber>{{orderNumberID}}</v11:OrderNumber>\r\n               <!--Optional:-->\r\n               <v11:AcceptanceDate>2019-04-22</v11:AcceptanceDate>\r\n            </v3:WorkshopOrderIdentifier>\r\n            <!--Optional:-->\r\n            <v3:OrderStatus listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">open</v3:OrderStatus>\r\n            <!--Optional:-->\r\n            <v3:OrderCompletedDate>2019-04-22</v3:OrderCompletedDate>\r\n            <!--Optional:-->\r\n            <v3:ProcessingStatus listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">OrderPreparation</v3:ProcessingStatus>\r\n            <!--Optional:-->\r\n            <v3:LastModified>2022-06-10T11:05:21Z</v3:LastModified>\r\n            <!--Optional:-->\r\n            <v3:ServiceAdvisor>\r\n               <v12:EmployeeRef>\r\n                  <!--Optional:-->\r\n                 <!--> <v12:PartnerUID schemeID=\"1\" schemeVersionID=\"1\">030B4A82-1B7C-11CF-9D53-00AA003C9CB6</v12:PartnerUID>-->\r\n                  <!--Optional:-->\r\n                  <v12:ApplicationIdentifiers>\r\n                     <!--1 or more repetitions:-->\r\n                     <v12:ID schemeID=\"1\" schemeVersionID=\"1\">abcd1235</v12:ID>\r\n                  </v12:ApplicationIdentifiers>\r\n                  <!--Optional:-->\r\n                  <v12:DealerIdentifier>\r\n                     <!--Optional:-->\r\n                     <v12:PartnerKey>\r\n                        <!--Optional:-->\r\n                        <v12:Country listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">DEU</v12:Country>\r\n                        <!--Optional:-->\r\n                        <v12:Brand listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">V</v12:Brand>\r\n                        <!--Optional:-->\r\n                        <v12:PartnerNumber>12345</v12:PartnerNumber>\r\n                     </v12:PartnerKey>\r\n                  </v12:DealerIdentifier>\r\n               </v12:EmployeeRef>\r\n              <!--Optional:-->\r\n               <v3:Name>Max Schmidt</v3:Name>\r\n            </v3:ServiceAdvisor>\r\n            <!--Optional:-->\r\n            <v3:Customer>\r\n               <v12:CustomerRef>\r\n                  <!--Optional:-->\r\n                  <v12:PartnerUID schemeID=\"1\" schemeVersionID=\"1\">030B4A82-1B7C-11CF-9D53-00AA003C9CB6</v12:PartnerUID>\r\n                  <!--Optional:-->\r\n                  <v12:ApplicationIdentifiers>\r\n                     <!--1 or more repetitions:-->\r\n                     <v12:ID schemeID=\"1\" schemeVersionID=\"1\">abcd1235</v12:ID>\r\n                  </v12:ApplicationIdentifiers>\r\n              \r\n               </v12:CustomerRef>\r\n               <!--Optional:-->\r\n               <v3:FirstName>Thomas</v3:FirstName>\r\n               <!--Optional:-->\r\n               <v3:Name>Smith</v3:Name>\r\n            </v3:Customer>\r\n            <!--Optional:-->\r\n            <v3:CustomerStatement languageID=\"DEU\">something rattles when driving</v3:CustomerStatement>\r\n            <!--Optional:-->\r\n            <v3:CustomerDataProtectionStatement listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">Yes</v3:CustomerDataProtectionStatement>\r\n            <!--Optional:-->\r\n            <v3:VehicleData>\r\n               <v13:VehicleRef>\r\n                  <!--Optional:-->\r\n                  <v13:VIN schemeID=\"1\" schemeVersionID=\"1\">{{genVIN}}</v13:VIN>\r\n                  <!--Optional:-->\r\n                  <v13:LicensePlate>\r\n                     <!--Optional:-->\r\n                     <v13:LicensePlateNumber schemeID=\"1\" schemeVersionID=\"1\">B-MD2233</v13:LicensePlateNumber>\r\n                     <!--Optional:-->\r\n                     <v13:CountryOfLicense listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">DEU</v13:CountryOfLicense>\r\n                  </v13:LicensePlate>\r\n               </v13:VehicleRef>\r\n               <!--Optional:-->\r\n               <v3:VehicleAcceptanceDate>2019-04-22</v3:VehicleAcceptanceDate>\r\n               <!--Optional:-->\r\n               <v3:RepairStartDate>2019-04-23</v3:RepairStartDate>\r\n               <!--Optional:-->\r\n               <v3:RepairEndDate>2019-04-24</v3:RepairEndDate>\r\n               <!--Optional:-->\r\n               <v3:OdometerValue unit=\"km\">2345</v3:OdometerValue>\r\n               <!--Optional:-->\r\n               <v3:Date>2019-04-24</v3:Date>\r\n               <!--Optional:-->\r\n               <v3:OdometerReturnValue unit=\"km\">123</v3:OdometerReturnValue>\r\n               <!--Optional:-->\r\n               <v3:VehicleReturnDate>2019-04-24</v3:VehicleReturnDate>\r\n               <!--Optional:-->\r\n               <v3:GeneralInspection>2007-10</v3:GeneralInspection>\r\n               <!--Optional:-->\r\n               <v3:ExhaustTest>2007-10</v3:ExhaustTest>\r\n            </v3:VehicleData>\r\n            <!--Optional:-->\r\n            <v3:OrderItems>\r\n               <!--1 or more repetitions:-->\r\n               <v3:OrderItem>\r\n                  <!--Optional:-->\r\n                  <v3:ItemID schemeID=\"1\" schemeVersionID=\"1\">6c33acbd-3a6f-4065-a5c3-37d23eaa748f</v3:ItemID>\r\n                  <!--Optional:-->\r\n                  <v3:LineNumber>0</v3:LineNumber>\r\n                  <!--Optional:-->\r\n                  <v3:Descriptions>\r\n                     <!--1 or more repetitions:-->\r\n                     <v3:Description languageID=\"de-AT\">Coupling exchange</v3:Description>\r\n                  </v3:Descriptions>\r\n                  <!--Optional:-->\r\n                  <v3:BillToParty listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">Customer</v3:BillToParty>\r\n                  <!--Optional:-->\r\n                  <v3:Code>apnf:elp:1203125/1:6203700d2a363528f4d182a1</v3:Code>\r\n                  <!--Optional:-->\r\n                  <v3:Status listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">inWork</v3:Status>\r\n                  <!--Optional:-->\r\n                  <v3:WarrantyInvoiceNumber schemeID=\"1\" schemeVersionID=\"1\">123456789</v3:WarrantyInvoiceNumber>\r\n                  <!--Optional:-->\r\n                  <v3:Labours>\r\n                     <!--1 or more repetitions:-->\r\n                     <v3:Labour>\r\n                        <v3:LabourOperationID schemeID=\"1\" schemeVersionID=\"1\">abcd12344567gftgtz</v3:LabourOperationID>\r\n                        <v3:LabourOperationNumber schemeID=\"1\" schemeVersionID=\"1\">abcd1234</v3:LabourOperationNumber>\r\n                        <!--Optional:-->\r\n                        <v3:LineNumber>10701017</v3:LineNumber>\r\n                        <!--Optional:-->\r\n                        <v3:LabourOperationType listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">TemporaryDefined</v3:LabourOperationType>\r\n                       <!--Optional:-->\r\n                        <v3:Descriptions>\r\n                           <!--1 or more repetitions:-->\r\n                           <v3:Description languageID=\"de-AT\">Coupling exchange</v3:Description>\r\n                        </v3:Descriptions>\r\n                        <!--Optional:-->\r\n                        <v3:CostRate>7</v3:CostRate>\r\n                        <!--Optional:-->\r\n                        <v3:WorkshopCode schemeID=\"1\" schemeVersionID=\"1\">abchsfgagh15267</v3:WorkshopCode>\r\n                        <!--Optional:-->\r\n                        <v3:TimeValues>\r\n                           <!--1 or more repetitions:-->\r\n                           <v3:TimeValue>\r\n                              <v3:TimeUnit>500</v3:TimeUnit>\r\n                              <!--Optional:-->\r\n                              <v3:DegreeOfComplexity listID=\"A\" listVersionID=\"2\" name=\"abc\" languageID=\"DEU\">2</v3:DegreeOfComplexity>\r\n                              <!--Optional:-->\r\n                              <v3:TechnicianID schemeID=\"1\" schemeVersionID=\"1\">324322</v3:TechnicianID>\r\n                           </v3:TimeValue>\r\n                        </v3:TimeValues>\r\n                        <!--Optional:-->\r\n                        <v3:RelatedPackage schemeID=\"1\" schemeVersionID=\"1\">54db2251-48c6-4054-8041-d59e53d9f177</v3:RelatedPackage>\r\n                     </v3:Labour>\r\n                  </v3:Labours>\r\n                  <!--Optional:-->\r\n                  \r\n               </v3:OrderItem>\r\n            </v3:OrderItems>\r\n         </v3:WorkshopOrder>\r\n      </v1:AssignWorkshopOrder>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": "{{lgs-idk-url}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Incadea_GetOrderDetails/api/{OSV}/workshoporders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Set variable for data container to null\r",
+							"var RBJ = null; // RBJ = ResponseBodyJSON\r",
+							"// Verifies that response body isn't empty\r",
+							"try { RBJ = pm.response.json(); } catch(e) { console.log(\"Response not available\"); }\r",
+							"// Output of response body to log\r",
+							"// console.log(RBJ);\r",
+							"\r",
+							"if (RBJ != null && pm.response.code == \"200\"){ \r",
+							"    pm.test(\"Created WO is available - Status code 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"    pm.environment.set(\"technicalOrderVersionID\",RBJ.content[0].metaData.technicalOrderVersionID);\r",
+							"    pm.environment.set(\"technicalOrderID\",RBJ.content[0].metaData.technicalOrderID);\r",
+							"} else{    \r",
+							"    pm.test(\"Test fail, status code is: \" +pm.response.code, function () {\r",
+							"         pm.response.to.have.status(200);\r",
+							"    });     \r",
+							"}"
+						],
+						"type": "text/javascript",
+						"id": "25063728-8c5a-49b2-bcc8-cadf20b3452a"
+					}
+				}
+			],
+			"_postman_id": "c51a233f-1212-4056-a007-67bbee285924",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Active-Partner-Context",
+						"value": "{{partnerKeyOrMa}}",
+						"description": "Mandatory:The partner key, which identifies the partner",
+						"type": "text"
+					},
+					{
+						"key": "X-API-Token",
+						"value": "{{X-API-TokenElsaPro}}",
+						"type": "text"
+					},
+					{
+						"description": "Mandatory: A token, that authorizes the requesting service with GRP",
+						"key": "X-IdToken",
+						"type": "text",
+						"value": "{{X-ID-Token}}"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{IdentityKitToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{worps-url}}/api/{{defaultOSV2}}/workshoporders?orderNumberID={{orderNumberID}}",
+					"host": [
+						"{{worps-url}}"
+					],
+					"path": [
+						"api",
+						"{{defaultOSV2}}",
+						"workshoporders"
+					],
+					"query": [
+						{
+							"key": "orderNumberID",
+							"value": "{{orderNumberID}}",
+							"description": "Identifier that is set by the DMS"
+						},
+						{
+							"key": "orderNumberUID",
+							"value": "{{orderNumberUID}}",
+							"disabled": true
+						},
+						{
+							"key": "orderStatus",
+							"value": "Open",
+							"description": "Status of the workshop order",
+							"disabled": true
+						},
+						{
+							"key": "customerNumberID",
+							"value": "{{customerNumberID}}",
+							"description": "DMS customer number id",
+							"disabled": true
+						},
+						{
+							"key": "vin",
+							"value": "{{genVIN}}",
+							"description": "Vehicle Identification Number (Chassisnummer)",
+							"disabled": true
+						},
+						{
+							"key": "responsibleEmployee",
+							"value": "max.mustermann@volkswagen.de",
+							"description": "Email address of the responsible employee",
+							"disabled": true
+						},
+						{
+							"key": "orMaOrderCreationDateFrom",
+							"value": "2020-02-05T10:10:00.000Z",
+							"description": "Start date after which workshop orders would be filtered",
+							"disabled": true
+						},
+						{
+							"key": "orMaOrderCreationDateTo",
+							"value": "2020-07-23T16:13:00.000Z",
+							"description": "End date before which workshop orders would be filtered",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "0",
+							"description": "The requested page number.",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "100",
+							"description": "The requested number of WorkshopOrder that get retrieved from the database and the possible amount of responses.",
+							"disabled": true
+						},
+						{
+							"key": "sort",
+							"value": "workshopOrderDocument.orMaOrderCreationDate,desc",
+							"description": "Spring Pageable parameter. Sort order of entities retrieved from database. Must use fields of WorkshopOrder to sort. If no Sort is given, the default is 'workshopOrderDocument.orMaOrderCreationDate,desc'. Fields must begin with 'workshopOrderDocument.' prefix. If you want to sort by multiple fields, add another sort query parameter to the url: sort=aField,asc&sort=bField,desc. If a sort is given that does not use a valid field a 400 is returned.",
+							"disabled": true
+						},
+						{
+							"key": "dmsSyncStatus",
+							"value": "DMS",
+							"description": "Filter by allowed values: [ PENDING, COMPLETED, DMS,  RESTORED, FAILED, OUTDATED ]. Not allowed DECLINED, DECLINED_BY_DMS.",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Requests a list of all workshop orders with the latest version of each order\r\n\r\nThis endpoint provides an array of all existing workshop orders that can be assigned to the transferred X-ASWP context and will be returned as a JSON String.\r\n\r\nThe orders can be filtered using query parameters which are optional and the Status should not be DECLINED\r\n"
+			},
+			"response": []
+		}
+	]
+}
