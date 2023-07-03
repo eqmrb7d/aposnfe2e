@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "Crete_Access_Token",
+			"name": "Create_Access_Token",
 			"event": [
 				{
 					"listen": "test",
@@ -25,7 +25,7 @@
 					}
 				}
 			],
-			"_postman_id": "fa2e515f-ba0e-4d44-a6c2-66e96c0e34b4",
+			"id": "fa2e515f-ba0e-4d44-a6c2-66e96c0e34b4",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -50,8 +50,7 @@
 							"value": "{{client_secret_IDK}}",
 							"type": "text"
 						}
-					],
-					"options": {}
+					]
 				},
 				"url": "{{idk-token-url}}"
 			},
@@ -113,7 +112,7 @@
 					}
 				}
 			],
-			"_postman_id": "ff739914-c4f3-455f-8ad3-5549cf07bde6",
+			"id": "ff739914-c4f3-455f-8ad3-5549cf07bde6",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"content-type": true
@@ -186,7 +185,7 @@
 					}
 				}
 			],
-			"_postman_id": "c51a233f-1212-4056-a007-67bbee285924",
+			"id": "c51a233f-1212-4056-a007-67bbee285924",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
